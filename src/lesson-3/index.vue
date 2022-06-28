@@ -93,8 +93,8 @@ function createSpotLightHelper(sLight: any) {
 
 // camera
 function createCamera(w, h) {
-    const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-    camera.position.set(0, 0, 5);
+    const camera = new THREE.OrthographicCamera(-1, 1, -1, 1, 0.1, 10);
+    camera.position.set(0, 1, 3);
     camera.lookAt(0, 0, 0);
     return camera;
 }
