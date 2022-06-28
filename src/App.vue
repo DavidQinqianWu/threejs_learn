@@ -1,10 +1,12 @@
 <template>
-    <Lesson1 />
+    <!-- <Lesson1 /> -->
+    <Lesson2 />
 </template>
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import Lesson1 from './lesson-1/index.vue';
+import Lesson2 from './lesson-2/index.vue';
 </script>
 
 <style>
