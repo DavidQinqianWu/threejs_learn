@@ -2,79 +2,86 @@
 
 <script setup lang="ts">
 import * as THREE from 'three';
-import State from 'three/examples/jsm/libs/stats.module.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 
-const w = window.innerWidth;
-const h = window.innerHeight;
-const state = State();
 // scene
-const scene = new THREE.Scene();
+function createScene() {
+    return new THREE.Scene();
+}
 
-// 坐标
-const axes = new THREE.AxesHelper(2);
-scene.add(axes);
+function createAxes() {
+    // 坐标
+    return new THREE.AxesHelper(2);
+}
 
-// 光源
+function createCube() {
+    // const cube
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshNormalMaterial();
+    const cube = new THREE.Mesh(geometry, material);
+    cube.rotateX((45 / 180) * Math.PI);
+    cube.rotateY((45 / 180) * Math.PI);
+    return cube;
+}
 
-// object
-const carGroup = new THREE.Group();
-
-const bodyGroup = new THREE.Group();
-
-const bodyCube1 = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 2, 0.5),
-    new THREE.MeshNormalMaterial()
-);
-const bodyCube2 = new THREE.Mesh(
-    new THREE.BoxGeometry(0.5, 0.5, 0.5),
-    new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-    })
-);
-bodyCube2.position.z = 0.5;
-
-bodyGroup.add(bodyCube1);
-bodyGroup.add(bodyCube2);
-
-const wheelGroup = new THREE.Group();
-const wheel1 = new THREE.Mesh(
-    new THREE.BoxGeometry(0.1, 0.7, 0.7),
-    new THREE.MeshBasicMaterial({
-        color: 0x0000ff,
-    })
-);
-wheel1.position.set(-0.7, 0.5, 0);
-wheelGroup.add(wheel1);
-
-carGroup.add(bodyGroup);
-carGroup.add(wheelGroup);
-scene.add(carGroup);
+// light
+function createLight() {
+    const light = new THREE.AmbientLight();
+    return light;
+}
 
 // camera
-const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 100);
-camera.position.set(0, 0, 5);
-camera.lookAt(0, 0, 0);
+function createCamera(w, h) {
+    const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+    camera.position.set(0, 0, 5);
+    camera.lookAt(0, 0, 0);
+    return camera;
+}
 
-// Renderer
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(w, h);
-document.body.append(renderer.domElement);
-document.body.append(state.dom);
-
-// orbit controls
-const orbitControls = new OrbitControls(camera, renderer.domElement);
+function createRenderer(w, h) {
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(w, h);
+    return renderer;
+}
 
 const clock = new THREE.Clock();
-tick();
-function tick() {
-    const time = clock.getElapsedTime();
-    wheel1.rotation.x = time;
-    carGroup.position.y = Math.sin(time) * 2;
+function render(
+    cube: any,
+    camera: any,
+    renderer: any,
+    scene: any,
+    stats: any,
+    orbitControls: any
+) {
+    // const time = clock.getElapsedTime() * 1.5;
+    // cube.rotation.z = time;
+    // cube.position.x = Math.sin(time * 10) * 2;
+    // cube.position.y = Math.cos(time) * 2;
     renderer.render(scene, camera);
-
-    state.update();
+    stats.update();
     orbitControls.update();
-    requestAnimationFrame(tick);
+    requestAnimationFrame(
+        render.bind(null, cube, camera, renderer, scene, stats, orbitControls)
+    );
 }
+
+function start() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const scene = createScene();
+    const cube = createCube();
+    const camera = createCamera(w, h);
+    const renderer = createRenderer(w, h);
+    const stats: Stats = Stats();
+    const axes = createAxes();
+    scene.add(axes);
+    scene.add(cube);
+
+    document.body.append(renderer.domElement);
+    document.body.append(stats.domElement);
+    const orbitControls = new OrbitControls(camera, renderer.domElement);
+    render(cube, camera, renderer, scene, stats, orbitControls);
+}
+start();
 </script>
