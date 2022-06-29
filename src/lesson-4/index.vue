@@ -1,23 +1,25 @@
+<!-- 加载模型 -->
+
 <template></template>
 
 <script setup lang="ts">
 import * as THREE from 'three';
-import { SpotLight } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 // scene
 function createScene() {
     return new THREE.Scene();
 }
 // plane
 function createPlane() {
-    const planeM = new THREE.MeshPhongMaterial({
+    const planeM = new THREE.MeshStandardMaterial({
         color: 0xcccccc,
     });
     const planeG = new THREE.PlaneGeometry(4, 4);
     const plane = new THREE.Mesh(planeG, planeM);
     plane.rotateX(-0.5 * Math.PI);
+    plane.receiveShadow = true;
     return plane;
 }
 
@@ -34,6 +36,7 @@ function createSphere() {
     });
     const object = new THREE.Mesh(geometry, material);
     object.position.y = 0.25;
+    object.castShadow = true;
     return object;
 }
 
@@ -61,13 +64,14 @@ function createTorus() {
 
 // light
 function createLight() {
-    const light = new THREE.AmbientLight(0xffffff, 0.2);
+    const light = new THREE.AmbientLight(0xffffff, 0.5);
     return light;
 }
 
 function createDirectionLight() {
-    const dLight = new THREE.DirectionalLight(0xffffff);
+    const dLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dLight.position.set(1, 1, 1);
+    dLight.castShadow = true;
     return dLight;
 }
 
@@ -91,7 +95,7 @@ function createSpotLightHelper(sLight: any) {
 // camera
 function createCamera(w, h) {
     const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-    camera.position.set(0, 0, 5);
+    camera.position.set(0, 1, 3);
     camera.lookAt(0, 0, 0);
     return camera;
 }
@@ -99,6 +103,7 @@ function createCamera(w, h) {
 function createRenderer(w, h) {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(w, h);
+    renderer.shadowMap.enabled = true;
     return renderer;
 }
 
@@ -150,17 +155,25 @@ function start() {
     const light = createLight();
     const dLight = createDirectionLight();
 
-    const sLight = createSpotLight();
+    let loader = new FBXLoader();
+    loader.load('/mode/plane01.FBX', function (object) {
+        object.position.set(0, 0, 0);
+        console.log(object.position);
+
+        scene.add(object);
+    });
+
+    // const sLight = createSpotLight();
     scene.add(axes);
-    scene.add(cube);
-    scene.add(sphere);
-    scene.add(torus);
+    // scene.add(cube);
+    // scene.add(sphere);
+    // scene.add(torus);
     scene.add(plane);
     scene.add(light);
-    // scene.add(dLight);
-    scene.add(sLight);
-    // scene.add(createDirLightHelper(dLight));
-    scene.add(createSpotLightHelper(sLight));
+    scene.add(dLight);
+    scene.add(createDirLightHelper(dLight));
+    // scene.add(sLight);
+    // scene.add(createSpotLightHelper(sLight));
 
     document.body.append(renderer.domElement);
     document.body.append(stats.domElement);
